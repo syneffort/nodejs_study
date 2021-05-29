@@ -4,8 +4,21 @@ const path = require('path');
 const app = express();
 
 app.set('port', process.env.PORT || 3000);
+
 app.use((req, res, next) => {
-    console.log('모든 요청에서 실행');
+    console.log('1 모든 요청에서 실행');
+    next();
+}, (req, res, next) => {
+    console.log('2 모든요청에서 실행');
+    next();   
+}, 
+// (req, res, next) => {
+//     throw new Error('에러 발생!');   
+// }
+);
+
+app.use('/about', (req, res, next) => {
+    console.log('about 요청에서 실행');
     next();
 });
 
@@ -17,18 +30,33 @@ app.get('/category/express', (req, res) => {
     res.send('hello express');
 });
 
+app.get('/about', (req, res) => {
+    res.send('About express');
+});
+
+//#region 와일드카드는 하단에 위치
+
 // 라우터 파라미터는 다른 미들웨어 아래에 위치해야 함
 app.get('/category/:name', (req, res) => {
     res.send(`hello route parameter ${req.params.name}`);
 });
 
-app.get('/about', (req, res) => {
-    res.send('About express');
+// 애터리스크는 모든 요청을 다 받음
+app.get('/receive/*', (req, res) => {
+    res.send('Hello everybody!');
 });
 
-// 애터리스크는 모든 요청을 다 받음
-app.get('/*', (req, res) => {
-    res.send('Hello everybody!');
+//#endregion
+
+// 404 처리 미들웨어
+app.use((req, res, next) => {
+    res.status(404).send('<h1>404 Error!</h1>')
+});
+
+// 에러 미들웨어, next 안쓰더라도 꼭 매개변수 넣어야 함
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.send('<h1>에러났음. 근데 알려줄 수 없음</h1>');
 });
 
 app.listen(app.get('port'), () => {
