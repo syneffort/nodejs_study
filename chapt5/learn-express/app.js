@@ -7,6 +7,9 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+const indexRouter = require('./routes/index');
+const userRouter = require('./routes/user');
+
 const app = express();
 
 app.set('port', process.env.PORT || 3000);
@@ -34,6 +37,9 @@ app.use('/', (req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // true면 qs, false면 querystring
 
+
+app.use('/', indexRouter);
+app.use('/user', userRouter);
 
 // app.use((req, res, next) => {
 //     console.log('1 모든 요청에서 실행');
@@ -78,7 +84,7 @@ app.get('/upload', (req, res) => {
 app.post('/upload', upload.array('image'), (req, res) => {
     console.log(req.files);
     res.send('ok');
-})
+});
 
 app.use((req, res, next) => {
     req.data = 'session 비번';
