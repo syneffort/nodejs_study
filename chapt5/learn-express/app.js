@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
 const app = express();
 
@@ -9,9 +10,24 @@ app.set('port', process.env.PORT || 3000);
 
 app.use(morgan('dev'));
 // app.use(morgan('combined'));
-// app.use('요청경로', express.static(실제경로));
-app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
+app.use(session({
+    resave: false,
+    saveUninitialized: false,
+    secret: 'password',
+    cookie: {
+        httpOnly: true,
+    },
+    name: 'connect.sid',
+}));
+// app.use('요청경로', express.static(실제경로));
+app.use('/', (req, res, next) => {
+    if (req.session.id) {
+        express.static(path.join(__dirname, 'public'))(req, res, next);
+    } else {
+        next();
+    }
+})
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // true면 qs, false면 querystring
 
@@ -31,7 +47,16 @@ app.use(express.urlencoded({ extended: true })); // true면 qs, false면 queryst
 //         next(err); // next에 인자 전달 시 에러 처리됨 (에러 미들웨어로 전달)
 //     }
 // });
+
+app.use((req, res, next) => {
+    req.data = 'session 비번';
+    next();
+})
+
 app.get('/', (req, res) => {
+    console.log(req.data);
+    req.session.name = 'tester';
+    req.session.id = 'hello';
     console.log(req.body.name);
     const name = 'tester';
     req.cookies;
