@@ -1,3 +1,6 @@
+const dotenv = require('dotenv'); //.env 파일 생성 후 변수=값
+dotenv.config();
+
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
@@ -10,11 +13,11 @@ app.set('port', process.env.PORT || 3000);
 
 app.use(morgan('dev'));
 // app.use(morgan('combined'));
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
     resave: false,
     saveUninitialized: false,
-    secret: 'password',
+    secret: process.env.COOKIE_SECRET,
     cookie: {
         httpOnly: true,
     },
