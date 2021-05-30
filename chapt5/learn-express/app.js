@@ -9,6 +9,8 @@ app.set('port', process.env.PORT || 3000);
 
 app.use(morgan('dev'));
 // app.use(morgan('combined'));
+// app.use('요청경로', express.static(실제경로));
+app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // true면 qs, false면 querystring
