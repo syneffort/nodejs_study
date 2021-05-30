@@ -11,11 +11,15 @@ app.use((req, res, next) => {
 }, (req, res, next) => {
     console.log('2 모든요청에서 실행');
     next();   
-}, 
-// (req, res, next) => {
-//     throw new Error('에러 발생!');   
-// }
-);
+}, (req, res, next) => {
+    try {
+        console.log('unknownvalue');
+        next();
+    } catch (err)
+    {
+        next(err); // next에 인자 전달 시 에러 처리됨 (에러 미들웨어로 전달)
+    }
+});
 
 app.use('/about', (req, res, next) => {
     console.log('about 요청에서 실행');
@@ -26,12 +30,28 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/next', (req, res, next) => {
+    res.send(`<h1>next('route')</h1>`);
+    //next();
+    next('route');
+}, (req, res) => {
+    console.log('실행됩니까?');
+});
+
+app.get('/next', (req, res) => {
+    console.log('라우트?');
+})
+
 app.get('/category/express', (req, res) => {
     res.send('hello express');
 });
 
 app.get('/about', (req, res) => {
     res.send('About express');
+});
+
+app.get('/json', (req, res) => {
+    res.json({ hello: 'world' });
 });
 
 //#region 와일드카드는 하단에 위치
