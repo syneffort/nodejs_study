@@ -1,33 +1,54 @@
 const express = require('express');
 const path = require('path');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
 app.set('port', process.env.PORT || 3000);
 
-app.use((req, res, next) => {
-    console.log('1 모든 요청에서 실행');
-    next();
-}, (req, res, next) => {
-    console.log('2 모든요청에서 실행');
-    next();   
-}, (req, res, next) => {
-    try {
-        console.log('unknownvalue');
-        next();
-    } catch (err)
-    {
-        next(err); // next에 인자 전달 시 에러 처리됨 (에러 미들웨어로 전달)
-    }
+app.use(morgan('dev'));
+// app.use(morgan('combined'));
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // true면 qs, false면 querystring
+
+
+// app.use((req, res, next) => {
+//     console.log('1 모든 요청에서 실행');
+//     next();
+// }, (req, res, next) => {
+//     console.log('2 모든요청에서 실행');
+//     next();   
+// }, (req, res, next) => {
+//     try {
+//         console.log('unknownvalue');
+//         next();
+//     } catch (err)
+//     {
+//         next(err); // next에 인자 전달 시 에러 처리됨 (에러 미들웨어로 전달)
+//     }
+// });
+app.get('/', (req, res) => {
+    console.log(req.body.name);
+    const name = 'tester';
+    req.cookies;
+    req.signedCookies;
+    res.cookie('name', encodeURIComponent(name), {
+        expires: new Date(),
+        httpOnly: true,
+        path: '/',
+    });
+    res.clearCookie('name', encodeURIComponent(name), {
+        httpOnly: true,
+        path: '/',
+    });
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.use('/about', (req, res, next) => {
     console.log('about 요청에서 실행');
     next();
-});
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/next', (req, res, next) => {
