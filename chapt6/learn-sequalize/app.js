@@ -25,6 +25,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.get('/adduser/:name', (req, res) => {
+    const { User } = require('./models');
+    User.create({
+        name: req.params.name,
+        age: 24,
+        married: false,
+        comment: '자기소개1',
+    });
+    res.send('ok');
+});
+
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.rul} 라우터가 없습니다.`);
     error.status = 404;
