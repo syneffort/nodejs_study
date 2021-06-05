@@ -4,6 +4,9 @@ const morgan = require('morgan');
 const nunjucks = require('nunjucks');
 
 const { sequelize } = require('./models');
+const indexRouter = require('./routes');
+const usersRouter = require('./routes/users');
+const commentsRouter = require('./routes/comments');
 
 const app = express();
 app.set('port', process.env.PORT || 3001);
@@ -25,31 +28,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get('/adduser/:name', (req, res) => {
-    const { User } = require('./models');
-    User.create({
-        name: req.params.name,
-        age: 24,
-        married: false,
-        comment: '자기소개1',
-    });
-    res.send('ok');
-});
-
-app.get('/users', (req, res) => {
-    const users = getalluser()
-        .then(result => {
-            console.log('reuslt', result);
-            res.send(result);
-        });
-});
-
-const getalluser = async function() {
-    const [result, metadata] = await sequelize.query('SELECT * FROM users');
-    // console.log('reuslt', result);
-    // console.log('metadata', metadata);
-    return result;
-};
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/comments', commentsRouter);
 
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.rul} 라우터가 없습니다.`);
