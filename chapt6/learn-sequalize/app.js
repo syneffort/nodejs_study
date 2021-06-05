@@ -36,6 +36,21 @@ app.get('/adduser/:name', (req, res) => {
     res.send('ok');
 });
 
+app.get('/users', (req, res) => {
+    const users = getalluser()
+        .then(result => {
+            console.log('reuslt', result);
+            res.send(result);
+        });
+});
+
+const getalluser = async function() {
+    const [result, metadata] = await sequelize.query('SELECT * FROM users');
+    // console.log('reuslt', result);
+    // console.log('metadata', metadata);
+    return result;
+};
+
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.rul} 라우터가 없습니다.`);
     error.status = 404;
