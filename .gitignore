@@ -348,7 +348,10 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Custom
+*.env
 chapt2/big.txt
 chapt2/big2.txt
 chapt2/big3.txt
-chapt5/learn-express/.env
+chapt8/nodebird/uploads/
