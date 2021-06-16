@@ -11,7 +11,7 @@ const router = express.Router();
 // cors 또다른 해결 법 : 브라우저와 동일한 도메인의 프록시서버 활용 (http-proxy-middleware 참고)
 router.use(async (req, res, next) => {
     const domain = await Domain.findOne({
-        where: { host: url.parse(req.get('origin')) ? undefined : req.get('origin').host } // node14 부터 optional chaining ====> req.get('origin')?.host
+        where: { host: url.parse(req.get('origin')) ? url.parse(req.get('origin')).host : undefined } // node14 부터 optional chaining ====> req.get('origin')?.host
     });
     if (domain) {
         cors({
