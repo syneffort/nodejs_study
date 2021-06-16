@@ -1,10 +1,28 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const url = require('url');
 
 const { verifyToken, apiLimiter } = require('./middlewares');
 const { Domain, User, Post, Hashtag } = require('../models');
 
 const router = express.Router();
+
+// cors 또다른 해결 법 : 브라우저와 동일한 도메인의 프록시서버 활용 (http-proxy-middleware 참고)
+router.use(async (req, res, next) => {
+    const domain = await Domain.findOne({
+        where: { host: url.parse(req.get('origin')) ? undefined : req.get('origin').host } // node14 부터 optional chaining ====> req.get('origin')?.host
+    });
+    if (domain) {
+        cors({
+            origin: true,
+            credential: true,
+        })(req, res, next);
+    } else {
+        next();
+    }
+    
+})
 
 router.post('/token', apiLimiter, async (req, res) => {
     const { clientSecret } = req.body;
