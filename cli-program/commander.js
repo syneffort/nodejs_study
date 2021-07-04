@@ -3,10 +3,11 @@ const { program } = require('commander');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const inquirer = require('inquirer');
 const { version } = require('./package.json');
 
-const htmlTemplate = `
-<!DOCTYPE html>
+const htmlTemplate =
+`<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -19,8 +20,8 @@ const htmlTemplate = `
 </html>
 `;
 
-const routerTemplate = `
-const express = require('express');
+const routerTemplate =
+`const express = require('express');
 const router = express.Router();
  
 router.get('/', (req, res, next) => {
@@ -52,6 +53,7 @@ const mkdirp = (dir) => {
     dirname.forEach((d, idx) => {
         const pathBuilder = dirname.slice(0, idx + 1).join(path.sep);
         if (!exist(pathBuilder)) {
+            console.log(chalk.grey(`${pathBuilder} 경로 생성됨.`));
             fs.mkdirSync(pathBuilder);
         }
     });
@@ -92,19 +94,47 @@ program
     .option('-f, --filename [filename]', '파일명을 입력하세요.', 'index')
     .option('-d, --directory [path]', '생성 경로를 입력하세요.', '.')
     .action((type, options) => {
-       console.log(type, options.filename, options.directory);
        makeTemplate(type, options.filename, options.directory);
     });
 
 program
-    .command('*', { noHelp: true })
-    .action(() => {
-        console.log(chalk.bold.red('해당 명령어를 찾을 수 없습니다.'));
-        program.help(); // cli -h
-    });
-
-program.action((cmd, args) => {
-
+    .action((options, cmd) => {
+        if (cmd.args.length) {
+            console.log(chalk.bold.red('해당 명령어를 찾을 수 없습니다.'));
+            program.help();
+        } else {
+            inquirer.prompt([
+                {
+                    name: 'type',
+                    message: '템플릿 종류를 선택하세요.',
+                    type: 'list',
+                    choices: ['html', 'express-router'],
+                },
+                {
+                    name: 'name',
+                    message: '파일명을 입력하세요.',
+                    type: 'input',
+                    default: 'index',
+                },
+                {
+                    name: 'directory',
+                    message: '파일 경로를 입력하세요.',
+                    type: 'input',
+                    default: '.',
+                },
+                {
+                    type: 'confirm',
+                    name: 'confirm',
+                    message: '진행하시겠습니까?',
+                }
+            ])
+                .then((answers) => {
+                    if (answers.confirm) {
+                        makeTemplate(answers.type, answers.name, answers.directory);
+                        console.log(chalk.grey('터미널을 종료합니다.'));
+                    }
+                })
+        }
 });
 
 program.parse(process.argv);
