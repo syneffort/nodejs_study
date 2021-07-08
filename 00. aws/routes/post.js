@@ -23,15 +23,18 @@ AWS.config.update({
     region: 'ap-northeast-2',
 });
 
-const upload = multerS3({
-    s3: new AWS.S3(),
-    bucket: nodebirdt,
-    key(req, file, cb) {
-        cb(null, `original/${Date.now()}${path.basename(file.originalname)}`);
-    },
+const upload = multer({
+    storage: multerS3({
+        s3: new AWS.S3(),
+        bucket: "nodebirdt",
+        key(req, file, cb) {
+            cb(null, `original/${Date.now()}${path.basename(file.originalname)}`);
+        },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-router.post('img', isLoggedIn, upload.single('img'), (req, res) => {
+router.post('/img', isLoggedIn, upload.single('img'), (req, res) => {
     console.log(req.file);
     res.json({ url: req.file.location });
 });
