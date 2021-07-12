@@ -36,7 +36,7 @@
             <div class="twit-content">{{twit.content}}</div>
             {% if twit.img %}
                 <div class="twit-img">
-                    <img src="{{twit.img}}" alt="섬네일">
+                    <img src="{{twit.img}}" onerror="this.src = this.src.replace(/\/thumb\//, '/original/');" alt="섬네일">
                 </div>
             {% endif %}
         </div>
@@ -56,7 +56,7 @@
                 .then((res) => {
                     console.log(res);
                     document.getElementById('img-url').value = res.data.url;
-                    document.getElementById('img-preview').src = res.data.url;
+                    document.getElementById('img-preview').src = res.data.originalUrl;
                     document.getElementById('img-preview').style.display = 'inline';
                 })
                 .catch((err) => {
